@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>MCP Playground</title></head>
+<body>
+  <h2>MCP Chat Prompt</h2>
+  <textarea id="prompt" rows="10" cols="80">Was ist das MCP-Protokoll?</textarea>
+  <button onclick="send()">Senden</button>
+  <pre id="result"></pre>
+  <script>
+    async function send() {
+      const res = await fetch('/v1/chat/completions', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ model: 'sonar-reasoning-pro', messages: [{ role: 'user', content: prompt.value }] })
+      });
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let text = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        text += decoder.decode(value);
+        document.getElementById('result').textContent = text;
+      }
+    }
+  </script>
+</body>
+</html>
